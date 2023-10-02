@@ -1,15 +1,23 @@
+// Notes to self:
+// - migrate to using just span to answear simple queries
+// - 
+
 // Glabal Module Fragment
 module;
 #include "Windows.h"
 #include "hidusage.h"
 #undef DELETE
 
-export module Module;
+export module WinInput;
 
 /*** Imports ***/
+
 import std;
 using SteadyTime = std::chrono::time_point<std::chrono::steady_clock>;
 import std.compat;
+
+import Utils;
+
 
 /*** Interface ***/
 export namespace VirtualKeys {
@@ -108,14 +116,26 @@ export namespace VirtualKeys {
 	};
 }
 
-export struct KeyState {
+export struct KeySpan {
 	bool is_down;
+	bool transition;
 	SteadyTime start_time;
 	SteadyTime end_time;
-	bool transition;
+
+public:
+	std::chrono::nanoseconds duration();
+	std::chrono::milliseconds durationMiliSec();
+	std::chrono::microseconds durationMicroSec();
+};
+
+export struct KeyState {
+	std::vector<KeySpan> spans;
 
 	// Stats
-	uint32_t messages_count;
+	/// number of key down messages received across multiple frames since first key press
+	uint64_t down_message_count;
+	/// number of messages received during frame
+	uint32_t frame_message_count;
 };
 
 export struct MousePosition {
@@ -165,19 +185,14 @@ export void expandWindowProcedure(WindowInput& window_input, HWND hwnd, UINT uMs
 /* Frame */
 
 export void startReadingInput(WindowInput& window_input);
-export void endReadingInput(WindowInput& window_input,
-	std::chrono::time_point<std::chrono::steady_clock> frame_start_time
-);
+export void endReadingInput(WindowInput& window_input);
 
 
 /* Read Keyboard */
 
-export bool isKeyDown(WindowInput& window_input, uint16_t key);
-//export void getKeysDown(WindowInput& window_input, std::vector<uint16_t>& r_keys_down);
-export bool isKeyInTransition(WindowInput& window_input);
-//export void getKeyTransitions(WindowInput& window_input, , std::vector<uint16_t>& r_keys_transitioned);
-export std::chrono::nanoseconds getKeyDuration(WindowInput& window_input, uint16_t key);
-export std::chrono::milliseconds getKeyDurationMs(WindowInput& window_input, uint16_t key);
+export bool wasKeyDown(WindowInput& window_input, uint16_t key);
+export bool didKeyTransitionOccurred(WindowInput& window_input, uint16_t key);
+export std::vector<KeySpan>& getKeySpans(WindowInput& window_input, uint16_t key);
 
 
 /* Read Mouse */
@@ -190,46 +205,27 @@ export MouseDelta getMouseDelta(WindowInput& window_input);
 //export std::vector<MouseDeltas>& getMouseDeltas(WindowInput& window_input);
 
 
+/* Stats */
+
+export uint64_t getKeyMessageCount(WindowInput& window_input, uint16_t key);
+export uint32_t getKeyFrameMessageCount(WindowInput& window_input, uint16_t key);
+
+
 /*** Implementation ***/
-uint16_t getLowOrder(uint32_t param)
+
+export std::chrono::nanoseconds KeySpan::duration()
 {
-	return param & 0xFFFF;
+	return start_time < end_time ? end_time - start_time : std::chrono::milliseconds(0);
 }
 
-uint16_t getHighOrder(uint32_t param)
+export std::chrono::milliseconds KeySpan::durationMiliSec()
 {
-	return param >> 16;
+	return std::chrono::duration_cast<std::chrono::milliseconds>(duration());
 }
 
-int16_t getSignedLowOrder(uint32_t param)
+export std::chrono::microseconds KeySpan::durationMicroSec()
 {
-	return param & 0xFFFF;
-}
-
-int16_t getSignedHighOrder(uint32_t param)
-{
-	return param >> 16;
-}
-
-std::wstring getLastError()
-{
-	LPWSTR buffer;
-
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
-		GetLastError(),
-		0,
-		(LPWSTR)&buffer,
-		0,
-		NULL
-	);
-
-	std::wstring error_msg = buffer;
-
-	LocalFree(buffer);
-
-	return error_msg;
+	return std::chrono::duration_cast<std::chrono::microseconds>(duration());
 }
 
 export void initWindowInput(HWND hwnd, WindowInput& s)
@@ -268,42 +264,49 @@ export void initWindowInput(HWND hwnd, WindowInput& s)
 		};
 	}
 
+	// Init Keys
 	auto now = std::chrono::steady_clock::now();
 
 	for (auto& key : s.key_list) {
-		key.is_down = false;
-		key.start_time = now;
-		key.end_time = now;
-		key.transition = false;
+		auto& span = key.spans.emplace_back();
+		span.is_down = false;
+		span.start_time = now;
+		span.end_time = now;
+		span.transition = false;
+
+		key.down_message_count = 0;
+		key.frame_message_count = 0;
 	}
 }
 
-void setKeyDownState(WindowInput& s, uint64_t wParam)
+void setKeyState(WindowInput& s, uint64_t wParam, bool is_down)
 {
 	KeyState& key = s.key_list[wParam];
 
-	// DOWN transition
-	if (key.is_down == false) {
-		key.is_down = true;
-		key.transition = true;
-		key.start_time = std::chrono::steady_clock::now();
+	auto* prev = &key.spans.back();
+
+	// Extension
+	if (prev->is_down == is_down) {
+		// do nothing
+	}
+	// Transition
+	else {
+		auto& new_span = key.spans.emplace_back();
+		prev = &key.spans[key.spans.size() - 2];
+
+		new_span.is_down = is_down;
+		new_span.transition = true;
+		new_span.start_time = std::chrono::steady_clock::now();
 	}
 
-	// key was already DOWN do nothing
-}
-
-void setKeyUpState(WindowInput& s, uint64_t wParam)
-{
-	KeyState& key = s.key_list[wParam];
-
-	// UP transition
-	if (key.is_down) {
-		key.is_down = false;
-		key.transition = true;
-		key.start_time = std::chrono::steady_clock::now();
+	if (is_down) {
+		key.down_message_count += 1;
+	}
+	else {
+		key.down_message_count = 0;
 	}
 
-	// key was already UP do nothing
+	key.frame_message_count += 1;
 }
 
 export void expandWindowProcedure(WindowInput& input, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -311,31 +314,31 @@ export void expandWindowProcedure(WindowInput& input, HWND hwnd, UINT uMsg, WPAR
 	switch (uMsg) {
 	// Keyboard
 	case WM_KEYDOWN: {
-		setKeyDownState(input, wParam);
+		setKeyState(input, wParam, true);
 		break;
 	}
 	case WM_KEYUP: {
-		setKeyUpState(input, wParam);
+		setKeyState(input, wParam, false);
 		break;
 	}
 	// Mouse Buttons
 	case WM_LBUTTONDOWN: {
-		setKeyDownState(input, VirtualKeys::LEFT_MOUSE_BUTTON);
+		setKeyState(input, VirtualKeys::LEFT_MOUSE_BUTTON, true);
 	}
 	case WM_LBUTTONUP: {
-		setKeyUpState(input, VirtualKeys::LEFT_MOUSE_BUTTON);
+		setKeyState(input, VirtualKeys::LEFT_MOUSE_BUTTON, false);
 	}
 	case WM_RBUTTONDOWN: {
-		setKeyDownState(input, VirtualKeys::RIGHT_MOUSE_BUTTON);
+		setKeyState(input, VirtualKeys::RIGHT_MOUSE_BUTTON, true);
 	}
 	case WM_RBUTTONUP: {
-		setKeyUpState(input, VirtualKeys::RIGHT_MOUSE_BUTTON);
+		setKeyState(input, VirtualKeys::RIGHT_MOUSE_BUTTON, false);
 	}
 	case WM_MBUTTONDOWN: {
-		setKeyDownState(input, VirtualKeys::MIDDLE_MOUSE_BUTTON);
+		setKeyState(input, VirtualKeys::MIDDLE_MOUSE_BUTTON, true);
 	}
 	case WM_MBUTTONUP: {
-		setKeyUpState(input, VirtualKeys::MIDDLE_MOUSE_BUTTON);
+		setKeyState(input, VirtualKeys::MIDDLE_MOUSE_BUTTON, false);
 	}
 	case WM_MOUSEWHEEL: {
 		input.mouse_wheel_delta += (int16_t)getHighOrder((uint32_t)wParam);
@@ -394,37 +397,62 @@ export void startReadingInput(WindowInput& s)
 	for (uint16_t virtual_key = 0; virtual_key < s.key_list.size(); virtual_key++) {
 
 		KeyState& key = s.key_list[virtual_key];
-		key.transition = false;
+
+		// Spans
+		key.spans[0] = key.spans[key.spans.size() - 1];
+		key.spans.resize(1);
+
+		key.spans[0].transition = false;
+
+		// Stats
+		key.frame_message_count = 0;
 	}
 }
 
-export void endReadingInput(WindowInput& s, SteadyTime frame_start_time)
+export void endReadingInput(WindowInput& s)
 {
+	auto now = std::chrono::steady_clock::now();
+
 	for (auto& key : s.key_list) {
-		key.end_time = frame_start_time;
+
+		if (key.spans.size() > 1) {
+
+			for (uint32_t i = 0; i < key.spans.size() - 1; i++) {
+				auto& current = key.spans[i];
+				auto& next = key.spans[i + 1];
+
+				current.end_time = next.start_time;
+			}
+		}
+		
+		auto& last = key.spans.back();
+		last.end_time = now;
 	}
 }
 
-export bool isKeyDown(WindowInput& s, uint16_t key)
+export bool wasKeyDown(WindowInput& s, uint16_t key)
 {
-	return s.key_list[key].is_down;
+	for (auto& span : s.key_list[key].spans) {
+		if (span.is_down) {
+			return true;
+		}
+	}
+	return false;
 }
 
-export bool isKeyInTransition(WindowInput& s, uint16_t key)
+export bool didKeyTransitionOccurred(WindowInput& s, uint16_t key)
 {
-	return s.key_list[key].transition;
+	for (auto& span : s.key_list[key].spans) {
+		if (span.transition) {
+			return true;
+		}
+	}
+	return false;
 }
 
-export std::chrono::nanoseconds getKeyDuration(WindowInput& s, uint16_t key)
+export std::vector<KeySpan>& getKeySpans(WindowInput& s, uint16_t key)
 {
-	auto start = s.key_list[key].start_time;
-	auto end = s.key_list[key].end_time;
-	return start < end ? end - start : std::chrono::milliseconds(0);
-}
-
-export std::chrono::milliseconds getKeyDurationMs(WindowInput& s, uint16_t key)
-{
-	return std::chrono::duration_cast<std::chrono::milliseconds>(getKeyDuration(s, key));
+	return s.key_list[key].spans;
 }
 
 export bool didMouseMove(WindowInput& s)
@@ -445,4 +473,14 @@ export MousePosition getMouseWindowPosition(WindowInput& window_input)
 export MouseDelta getMouseDelta(WindowInput& window_input)
 {
 	return window_input.mouse_delta;
+}
+
+export uint64_t getKeyMessageCount(WindowInput& window_input, uint16_t key)
+{
+	return window_input.key_list[key].down_message_count;
+}
+
+export uint32_t getKeyFrameMessageCount(WindowInput& window_input, uint16_t key)
+{
+	return window_input.key_list[key].frame_message_count;
 }

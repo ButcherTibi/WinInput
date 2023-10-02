@@ -6,7 +6,7 @@ import std;
 using SteadyTime = std::chrono::time_point<std::chrono::steady_clock>;
 
 // Library
-import Module;
+import WinInput;
 
 
 WindowInput window_input;
@@ -67,25 +67,30 @@ int main()
 				DispatchMessage(&msg);
 			}
 
-			endReadingInput(window_input, frame_start_time);
+			endReadingInput(window_input);
 		}
 
 		// Respond to input
 		{
 			// do stuff . . .
 
-			if (isKeyDown(window_input, VirtualKeys::A)) {
+			if (wasKeyDown(window_input, VirtualKeys::F6)) {
 
-				if (isKeyInTransition(window_input, VirtualKeys::A)) {
-					std::printf("DOWN transition \n");
-				}
+				std::printf("\n");
 
-				auto duration = getKeyDurationMs(window_input, VirtualKeys::A);
-				std::printf("DOWN %lld \n", duration.count());
-			}
-			else {
-				if (isKeyInTransition(window_input, VirtualKeys::A)) {
-					std::printf("UP transition \n");
+				auto& spans = getKeySpans(window_input, VirtualKeys::F6);
+
+				for (KeySpan& span : spans) {
+					if (span.is_down) {
+						std::printf("DOWN %lld ms \n",
+							span.durationMiliSec().count()
+						);
+					}
+					else {
+						std::printf("UP %lld ms \n",
+							span.durationMiliSec().count()
+						);
+					}
 				}
 			}
 
@@ -96,7 +101,7 @@ int main()
 					std::printf("Mouse Window Position = %d %d \n", x, y);
 				}
 
-				if (true) {
+				if (false) {
 					auto [x, y] = getMouseDelta(window_input);
 					std::printf("Mouse Delta = %d %d \n", x, y);
 				}
