@@ -1,0 +1,17 @@
+
+# Folders
+.vs/
+InputLibrary/x64/
+
+# Build Intermediary
+*.recipe
+*.CppClean.log
+
+# Intermediary
+*.obj
+*.pdb
+*.idb
+*.ilk
+
+# Output
+*.out
