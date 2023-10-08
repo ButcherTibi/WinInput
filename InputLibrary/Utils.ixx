@@ -1,31 +1,30 @@
 module;
 #include "Windows.h"
-export module Utils;
+export module WinInput:Utils;
 
 import std;
 import std.compat;
 
-export uint16_t getLowOrder(uint32_t param)
+
+uint16_t getLowOrder(uint32_t param)
 {
 	return param & 0xFFFF;
 }
-
-export uint16_t getHighOrder(uint32_t param)
+uint16_t getHighOrder(uint32_t param)
 {
 	return param >> 16;
 }
 
-export int16_t getSignedLowOrder(uint32_t param)
+int16_t getSignedLowOrder(uint32_t param)
 {
 	return param & 0xFFFF;
 }
-
-export int16_t getSignedHighOrder(uint32_t param)
+int16_t getSignedHighOrder(uint32_t param)
 {
 	return param >> 16;
 }
 
-export std::wstring getLastError()
+std::wstring getLastError()
 {
 	LPWSTR buffer;
 

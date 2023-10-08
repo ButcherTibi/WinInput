@@ -13,8 +13,14 @@ WindowInput window_input;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	expandWindowProcedure(window_input, hwnd, uMsg, wParam, lParam);
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);;
+	auto result = handleInputWindowMessages(window_input, hwnd, uMsg, wParam, lParam);
+	if (result.has_value()) {
+		// window message already handled by the library so return it's result
+		return result.value();
+	}
+
+	// Your stuff . . .
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
   
 
@@ -46,6 +52,7 @@ int main()
 	);
 
 	if (hwnd == NULL) {
+		std::cerr << "Failed to create window" << std::endl;
 		return 0;
 	}
 
@@ -72,44 +79,64 @@ int main()
 
 		// Respond to input
 		{
-			// do stuff . . .
+			std::vector<VirtualKey> keys_down;
+			keysDown(window_input, keys_down);
 
-			if (wasKeyDown(window_input, VirtualKeys::F6)) {
+			for (VirtualKey key : keys_down) {
 
-				std::printf("\n");
+				auto msg_count = getKeyMessageCount(window_input, key);
 
-				auto& spans = getKeySpans(window_input, VirtualKeys::F6);
+				if constexpr (true) {
+					std::printf("Key %d is down, message count %lld \n", key, msg_count);
+				}
 
-				for (KeySpan& span : spans) {
-					if (span.is_down) {
-						std::printf("DOWN %lld ms \n",
-							span.durationMiliSec().count()
-						);
+				if constexpr (false) {
+					if (keyWentDown(window_input, key)) {
+						std::printf("Key %d went down \n", key);
 					}
-					else {
-						std::printf("UP %lld ms \n",
-							span.durationMiliSec().count()
-						);
+
+					if (keyWentUp(window_input, key)) {
+						std::printf("Key %d went up \n", key);
 					}
 				}
 			}
 
 			if (didMouseMove(window_input)) {
-				
-				if (false) {
+
+				if constexpr (false) {
 					auto [x, y] = getMouseWindowPosition(window_input);
 					std::printf("Mouse Window Position = %d %d \n", x, y);
 				}
 
-				if (false) {
+				if constexpr (false) {
+					auto& positions = getMouseWindowPositions(window_input);
+					for (int i = 0; i < positions.size(); i++) {
+						auto [x, y] = positions[i];
+						std::printf("Mouse Window Positions = %d %d \n", x, y);
+					}
+				}
+
+				if constexpr (false) {
+					auto [x, y] = getMouseScreenPosition();
+					std::printf("Mouse Screen Position = %d %d \n", x, y);
+				}
+
+				if constexpr (false) {
 					auto [x, y] = getMouseDelta(window_input);
 					std::printf("Mouse Delta = %d %d \n", x, y);
+				}
+
+				if constexpr (false) {
+					auto& deltas = getMouseDeltas(window_input);
+					for (auto& delta : deltas) {
+						std::printf("Mouse Delta = %d %d \n", delta.x, delta.y);
+					}
 				}
 			}
 		}
 
 		// Frame Rate Limit
-		std::this_thread::sleep_until(frame_start_time + std::chrono::milliseconds(16));
+		//std::this_thread::sleep_until(frame_start_time + std::chrono::milliseconds(16));
 	}
 
 	return 0;

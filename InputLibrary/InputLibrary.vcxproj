@@ -130,8 +130,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="KeyInput.ixx" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="WinInput.ixx" />
+    <ClCompile Include="MouseInput.ixx" />
+    <ClCompile Include="Setup.ixx" />
+    <ClCompile Include="Types.ixx" />
+    <ClCompile Include="WinInputAPI.ixx" />
     <ClCompile Include="Utils.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
