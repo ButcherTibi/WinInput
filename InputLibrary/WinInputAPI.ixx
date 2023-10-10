@@ -13,8 +13,6 @@ import std.compat;
 
 /*
 * @TODO
-* - fix F10 key system menu
-* - x1 x2 mouse buttons
 * - controller input
 * - shortcuts maybe
 */
@@ -80,6 +78,11 @@ export bool keyWentUp(WindowInput& window_input, VirtualKey key);
 export bool didKeyTransitionOccurred(WindowInput& window_input, VirtualKey key);
 
 /**
+ * @brief Get the duration of time the key is down
+*/
+export std::chrono::milliseconds getKeyDownDuration(WindowInput& window_input, VirtualKey key);
+
+/**
  * @brief Get the underline spans of a key 
 */
 export std::vector<KeySpan>& getKeySpans(WindowInput& window_input, VirtualKey key);
@@ -137,5 +140,12 @@ export std::vector<MouseDelta>& getMouseDeltas(WindowInput& window_input);
 
 /* Stats */
 
-export uint64_t getKeyMessageCount(WindowInput& window_input, VirtualKey key);
+/**
+ * @brief Total number of key down messages received
+*/
+export uint64_t getKeyDownMessageCount(WindowInput& window_input, VirtualKey key);
+
+/**
+ * @brief Total number of messages received in a frame 
+*/
 export uint32_t getKeyFrameMessageCount(WindowInput& window_input, VirtualKey key);

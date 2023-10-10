@@ -2,6 +2,7 @@
 # Folders
 .vs/
 InputLibrary/x64/
+Client/x64/
 
 # Build Intermediary
 *.recipe

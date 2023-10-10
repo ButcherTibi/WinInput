@@ -98,12 +98,29 @@ export bool didKeyTransitionOccurred(WindowInput& s, uint16_t key)
 	return false;
 }
 
+std::chrono::nanoseconds getKeyStateDuration(WindowInput& s, VirtualKey key, bool is_down)
+{
+	std::chrono::nanoseconds sum(0);
+
+	for (auto& span : s.key_list[key].spans) {
+		if (span.is_down) {
+			sum += span.duration();
+		}
+	}
+	return sum;
+}
+
+export std::chrono::milliseconds getKeyDownDuration(WindowInput& window_input, VirtualKey key)
+{
+	return std::chrono::duration_cast<std::chrono::milliseconds>(getKeyStateDuration(window_input, key, true));
+}
+
 export std::vector<KeySpan>& getKeySpans(WindowInput& s, uint16_t key)
 {
 	return s.key_list[key].spans;
 }
 
-export uint64_t getKeyMessageCount(WindowInput& window_input, uint16_t key)
+export uint64_t getKeyDownMessageCount(WindowInput& window_input, uint16_t key)
 {
 	return window_input.key_list[key].down_message_count;
 }

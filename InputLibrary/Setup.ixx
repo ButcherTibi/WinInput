@@ -1,4 +1,5 @@
 module;
+#define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 #include "hidusage.h"  // for RAWINPUT registration
 #include "windowsx.h"  // GET_X_LPARAM GET_Y_LPARAM
@@ -113,6 +114,20 @@ export std::optional<int32_t> handleInputWindowMessages(WindowInput& input, HWND
 	}
 	case WM_KEYUP: {
 		setKeyState(input, wParam, false);
+		return 0;
+	}
+	case WM_SYSKEYDOWN: {
+		// F10
+		if ((lParam & (1 << 29)) == 0) {
+			setKeyState(input, wParam, true);
+		}
+		return 0;
+	}
+	case WM_SYSKEYUP: {
+		// F10
+		if ((lParam & (1 << 29)) == 0) {
+			setKeyState(input, wParam, false);
+		}
 		return 0;
 	}
 	// Mouse Buttons
