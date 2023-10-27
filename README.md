@@ -27,80 +27,80 @@ WindowInput window_input;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto result = handleInputWindowMessages(window_input, hwnd, uMsg, wParam, lParam);
-	if (result.has_value()) {
-		// window message already handled by the library so return it's result
-		return result.value();
-	}
+    auto result = handleInputWindowMessages(window_input, hwnd, uMsg, wParam, lParam);
+    if (result.has_value()) {
+        // window message already handled by the library so return it's result
+        return result.value();
+    }
 
-	// Your stuff . . .
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    // Your stuff . . .
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 export void gettingStarted()
 {
-	// Create Window
-	HWND hwnd = NULL;
-	{
-		HINSTANCE hInstance = GetModuleHandle(nullptr);
-		const wchar_t CLASS_NAME[] = L" ";
+    // Create Window
+    HWND hwnd = NULL;
+    {
+        HINSTANCE hInstance = GetModuleHandle(nullptr);
+        const wchar_t CLASS_NAME[] = L" ";
 
-		WNDCLASS wc = { };
-		wc.lpfnWndProc = WindowProc;
-		wc.hInstance = hInstance;
-		wc.lpszClassName = CLASS_NAME;
-		RegisterClass(&wc);
+        WNDCLASS wc = { };
+        wc.lpfnWndProc = WindowProc;
+        wc.hInstance = hInstance;
+        wc.lpszClassName = CLASS_NAME;
+        RegisterClass(&wc);
 
-		hwnd = CreateWindowEx(
-			0,                                 // Optional window styles.
-			CLASS_NAME,                        // Window class
-			L"Getting Started",                // Window text
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE,  // Window style
+        hwnd = CreateWindowEx(
+            0,                                 // Optional window styles.
+            CLASS_NAME,                        // Window class
+            L"Getting Started",                // Window text
+            WS_OVERLAPPEDWINDOW | WS_VISIBLE,  // Window style
 
-			// Size and position
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+            // Size and position
+            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 
-			NULL,       // Parent window    
-			NULL,       // Menu
-			hInstance,  // Instance handle
-			NULL        // Additional application data
-		);
+            NULL,       // Parent window    
+            NULL,       // Menu
+            hInstance,  // Instance handle
+            NULL        // Additional application data
+        );
 
-		if (hwnd == NULL) {
-			std::cerr << "Failed to create window" << std::endl;
-			return;
-		}
-	}
-	
-	// Initialize Window Input with the HWND to read input
-	initWindowInput(hwnd, window_input);
+        if (hwnd == NULL) {
+            std::cerr << "Failed to create window" << std::endl;
+            return;
+        }
+    }
+    
+    // Initialize Window Input with the HWND to read input
+    initWindowInput(hwnd, window_input);
 
-	// Frame Loop
-	while (true) {
+    // Frame Loop
+    while (true) {
 
-		// Read Window Messages
-		{
-			startReadingInput(window_input);
+        // Read Window Messages
+        {
+            startReadingInput(window_input);
 
-			MSG msg = { };
-			while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+            MSG msg = { };
+            while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
 
-			endReadingInput(window_input);
-		}
+            endReadingInput(window_input);
+        }
 
-		// Respond to input
-		{
-			std::vector<VirtualKey> keys_down;
-			keysDown(window_input, keys_down);
+        // Respond to input
+        {
+            std::vector<VirtualKey> keys_down;
+            keysDown(window_input, keys_down);
 
-			for (VirtualKey key : keys_down) {
-				std::printf("Key %d is down \n", key);
-			}
-		}
-	}
+            for (VirtualKey key : keys_down) {
+                std::printf("Key %d is down \n", key);
+            }
+        }
+    }
 }
 ```
