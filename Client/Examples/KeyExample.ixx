@@ -1,15 +1,17 @@
 module;
+#define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 export module KeyExample;
 
 import std;
 import WinInput;
+using namespace wininput;
 
-WindowInput window_input;
+WinInput win_input;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto result = handleInputWindowMessages(window_input, hwnd, uMsg, wParam, lParam);
+	auto result = handleInputWindowMessages(win_input, hwnd, uMsg, wParam, lParam);
 	if (result.has_value()) {
 		// window message already handled by the library so return it's result
 		return result.value();
@@ -19,52 +21,52 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-export void keyExample()
+HWND createExampleWindow()
 {
-	// Create Window
-	HWND hwnd = NULL;
-	{
-		HINSTANCE hInstance = GetModuleHandle(nullptr);
-		const wchar_t CLASS_NAME[] = L" ";
+	HINSTANCE hInstance = GetModuleHandle(nullptr);
+	const wchar_t CLASS_NAME[] = L" ";
 
-		WNDCLASS wc = { };
-		wc.lpfnWndProc = WindowProc;
-		wc.hInstance = hInstance;
-		wc.lpszClassName = CLASS_NAME;
-		RegisterClass(&wc);
+	WNDCLASS wc = { };
+	wc.lpfnWndProc = WindowProc;
+	wc.hInstance = hInstance;
+	wc.lpszClassName = CLASS_NAME;
+	RegisterClass(&wc);
 
-		hwnd = CreateWindowEx(
-			0,                                 // Optional window styles.
-			CLASS_NAME,                        // Window class
-			L"Key Example",                    // Window text
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE,  // Window style
+	HWND window_handle = CreateWindowEx(
+		0,                                 // Optional window styles.
+		CLASS_NAME,                        // Window class
+		L"Keyboard Example",               // Window text
+		WS_OVERLAPPEDWINDOW | WS_VISIBLE,  // Window style
 
-			// Size and position
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		// Size and position
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 
-			NULL,       // Parent window    
-			NULL,       // Menu
-			hInstance,  // Instance handle
-			NULL        // Additional application data
-		);
+		NULL,       // Parent window    
+		NULL,       // Menu
+		hInstance,  // Instance handle
+		NULL        // Additional application data
+	);
 
-		if (hwnd == NULL) {
-			std::cerr << "Failed to create window" << std::endl;
-			return;
-		}
+	if (window_handle == NULL) {
+		throw "Failed to create window";
 	}
 
+	return window_handle;
+}
+
+export void keyExample()
+{
+	HWND hwnd = createExampleWindow();
+
 	// Initialize Window Input with the HWND to read input
-	initWindowInput(hwnd, window_input);
+	initWinInput(hwnd, win_input);
 
 	// Frame Loop
 	while (true) {
 
-		auto frame_start_time = std::chrono::steady_clock::now();
-
 		// Read Window Messages
 		{
-			startReadingInput(window_input);
+			startReadingInput(win_input);
 
 			MSG msg = { };
 			while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE))
@@ -73,33 +75,28 @@ export void keyExample()
 				DispatchMessage(&msg);
 			}
 
-			endReadingInput(window_input);
+			endReadingInput(win_input);
 		}
 
 		// Respond to input
 		std::vector<VirtualKey> keys_down;
-		keysDown(window_input, keys_down);
+		keysDown(win_input, keys_down);
 
 		for (VirtualKey key : keys_down) {
 
-			auto duration = getKeyDownDuration(window_input, key);
-			auto msg_count = getKeyDownMessageCount(window_input, key);
+			auto key_name = getKeyName(win_input, key);
+			auto duration = getKeyDownDurationMiliSecs(win_input, key);
 
-			if (keyWentDown(window_input, key)) {
-				std::printf("Key %d went down \n", key);
+			if (keyWentDown(win_input, key)) {
+				std::printf("Key %s went down \n", key_name.c_str());
+			}
+			else {
+				std::printf("Key %s is down, Duration = %lld miliseconds \n", key_name.c_str(), duration.count());
 			}
 
-			std::printf("Key %d is down, Duration = %lld ms, Message Count = %lld \n", key, duration.count(), msg_count);
-
-			if (keyWentUp(window_input, key)) {
-				std::printf("Key %d went up \n", key);
+			if (keyWentUp(win_input, key)) {
+				std::printf("Key %s went up \n", key_name.c_str());
 			}
 		}
-
-		// Frame Rate Limit
-		auto frame_duration = std::chrono::milliseconds(1000 / 60);  // 60 FPS
-		// If we finish early yield back time to the OS
-		// Comment the below line for running as fast as possible (max usage of a single thread, see Task Manager)
-		std::this_thread::sleep_until(frame_start_time + frame_duration);
 	}
 }

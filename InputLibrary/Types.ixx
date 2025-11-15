@@ -62,36 +62,66 @@ export namespace VirtualKeys {
 
 		// Punctuation
 		SEMICOLON = VK_OEM_1,
+		COLLON = VK_OEM_1,
+		
 		SINGLE_QUOTE = VK_OEM_7,
+		DOUBLE_QUOTE = VK_OEM_7,
+		
 		COMMA = VK_OEM_COMMA,
+		LESS = VK_OEM_COMMA,
+		
 		DOT = VK_OEM_PERIOD,
+		MORE = VK_OEM_PERIOD,
 
-		// Text Editing
-		BACKSPACE = VK_BACK,
-		DELETE = VK_DELETE,
 		SPACE = VK_SEPARATOR,
-		ENTER = VK_RETURN,
 
 		// Symbols
 		SQUARE_BRACKET_OPEN = VK_OEM_4,
+		CURLY_OPEN = VK_OEM_4,
+
 		SQUARE_BRACKET_CLOSE = VK_OEM_6,
+		CURLY_CLOSE = VK_OEM_6,
+
+		GRAVE = VK_OEM_3,
 		TILDA = VK_OEM_3,
+
 		MINUS = VK_OEM_MINUS,
+		UNDER_LINE = VK_OEM_MINUS,
+
+		EQUALS = VK_OEM_PLUS,
 		PLUS = VK_OEM_PLUS,
+
 		FORDWARD_SLASH = VK_OEM_5,
+		QUESTION_MARK = VK_OEM_5,
+
 		BACK_SLASH = VK_OEM_2,
+		VERTICAL_BAR = VK_OEM_2,
 
-		// Mouse
-		LEFT_MOUSE_BUTTON = VK_LBUTTON,
-		RIGHT_MOUSE_BUTTON = VK_RBUTTON,
-		MIDDLE_MOUSE_BUTTON = VK_MBUTTON,
-
-		// Function
+		// Left Side
+		ESCAPE = VK_ESCAPE,
 		TAB = VK_TAB,
 		CAPS_LOCK = VK_CAPITAL,
 		SHIFT = VK_SHIFT,
-		CONTROL = VK_CONTROL,
+		//LEFT_SHIFT = 302,
 
+		// Right Side
+		BACKSPACE = VK_BACK,
+		ENTER = VK_RETURN,
+		//RIGHT_SHIFT = 303,
+
+		// Below
+		LEFT_CONTROL = 300,
+		RIGHT_CONTROL = 301,
+		
+		LEFT_WIN = VK_LWIN,
+		RIGHT_WIN = VK_RWIN,
+
+		LEFT_ALT = VK_LMENU,
+		RIGHT_ALT = VK_RMENU,
+
+		MENU = VK_APPS,
+
+		// Function
 		F1 = VK_F1,
 		F2 = VK_F2,
 		F3 = VK_F3,
@@ -106,6 +136,27 @@ export namespace VirtualKeys {
 		F10 = VK_F10,
 		F11 = VK_F11,
 		F12 = VK_F12,
+
+		// Above Arrows
+		PRINT_SCREEN = VK_PRINT,
+		SCROLL_LOCK = VK_SCROLL,
+		PAUSE = VK_PAUSE,
+
+		INSERT = VK_INSERT,
+		DELETE = VK_DELETE,
+		HOME = VK_HOME,
+		END = VK_END,
+
+		PAGE_UP = VK_PRIOR,
+		PRIOR = VK_PRIOR,
+
+		PAGE_DOWN = VK_NEXT,
+		NEXT = VK_NEXT,
+
+		// Mouse
+		LEFT_MOUSE_BUTTON = VK_LBUTTON,
+		RIGHT_MOUSE_BUTTON = VK_RBUTTON,
+		MIDDLE_MOUSE_BUTTON = VK_MBUTTON,
 	};
 }
 
@@ -128,6 +179,7 @@ export struct KeyState {
 	/// number of key down messages received across multiple frames since first key press
 	uint64_t down_message_count;
 	bool reset_down_msg_count;
+
 	/// number of messages received during frame
 	uint32_t frame_message_count;
 };
@@ -148,12 +200,13 @@ export struct MouseDelta {
 // start the timer on key down and stop only on key up event.
 // DO NOT extend time on each key down event or else a weird ~500 time delay will occur as the keyboard repeat function buffer
 // fills up and generates a single key down message at a later time
-export struct WindowInput {
+export struct WinInput {
 	// Setup
 	bool rawinput_ok;
 
 	// this list also contains non-existent, reserved, unused virtual key codes
-	std::array<KeyState, 0xFF> key_list;
+	// and fake ones
+	std::array<KeyState, 512> key_list;
 
 	// Local Mouse Position
 	bool wm_mousemove_received;
@@ -169,5 +222,6 @@ export struct WindowInput {
 	std::vector<uint8_t> rawinput_buffer;
 
 	// Mouse Wheel Delta
+	bool wm_mousewheel_received;
 	int16_t mouse_wheel_delta;
 };

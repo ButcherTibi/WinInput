@@ -7,5 +7,6 @@
     <ClCompile Include="Types.ixx" />
     <ClCompile Include="Setup.ixx" />
     <ClCompile Include="MouseInput.ixx" />
+    <ClCompile Include="Misc.ixx" />
   </ItemGroup>
 </Project>

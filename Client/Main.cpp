@@ -7,8 +7,8 @@ import KeyExample;
 
 int main()
 {
-	gettingStarted();
+	//gettingStarted();
 	//mouseExample();
-	//keyExample();
+	keyExample();
 	return 0;
 }
