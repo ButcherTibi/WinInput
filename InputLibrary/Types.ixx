@@ -73,7 +73,7 @@ export namespace VirtualKeys {
 		DOT = VK_OEM_PERIOD,
 		MORE = VK_OEM_PERIOD,
 
-		SPACE = VK_SEPARATOR,
+		SPACE = VK_SPACE,
 
 		// Symbols
 		SQUARE_BRACKET_OPEN = VK_OEM_4,
@@ -137,7 +137,7 @@ export namespace VirtualKeys {
 		F11 = VK_F11,
 		F12 = VK_F12,
 
-		// Above Arrows
+		// Mid Section
 		PRINT_SCREEN = VK_PRINT,
 		SCROLL_LOCK = VK_SCROLL,
 		PAUSE = VK_PAUSE,
@@ -152,6 +152,11 @@ export namespace VirtualKeys {
 
 		PAGE_DOWN = VK_NEXT,
 		NEXT = VK_NEXT,
+
+		LEFT = VK_LEFT,
+		UP = VK_UP,
+		RIGHT = VK_RIGHT,
+		DOWN = VK_DOWN,
 
 		// Mouse
 		LEFT_MOUSE_BUTTON = VK_LBUTTON,

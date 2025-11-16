@@ -1,0 +1,19 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "f:\\mywork\\wininput\\utf8 strings\\module.ixx",
+        "ProvidedModule": "UTF8_Strings:Module",
+        "Includes": [],
+        "ImportedModules": [
+            {
+                "Name": "std",
+                "BMI": "F:\\MyWork\\WinInput\\UTF8 Strings\\x64\\Debug\\microsoft\\STL\\std.ixx.ifc"
+            },
+            {
+                "Name": "std.compat",
+                "BMI": "F:\\MyWork\\WinInput\\UTF8 Strings\\x64\\Debug\\microsoft\\STL\\std.compat.ixx.ifc"
+            }
+        ],
+        "ImportedHeaderUnits": []
+    }
+}

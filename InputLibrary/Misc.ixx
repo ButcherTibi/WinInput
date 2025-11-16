@@ -71,7 +71,7 @@ export namespace wininput {
 		case VirtualKeys::F11:         return "F11";
 		case VirtualKeys::F12:         return "F12";
 
-			// Above Arrow Keys
+		// Mid section
 		case VirtualKeys::PRINT_SCREEN: return "Print Screen";
 		case VirtualKeys::SCROLL_LOCK: return "Scroll Lock";
 		case VirtualKeys::PAUSE: return "Pause";
@@ -83,14 +83,17 @@ export namespace wininput {
 		case VirtualKeys::PRIOR: return "Page Up";
 		case VirtualKeys::NEXT: return "Page Down";
 
-			// Mouse
+		case VirtualKeys::LEFT: return "Left";
+		case VirtualKeys::UP: return "Up";
+		case VirtualKeys::RIGHT: return "Right";
+		case VirtualKeys::DOWN: return "Down";
+
+		// Mouse
 		case VirtualKeys::LEFT_MOUSE_BUTTON: return "Left Mouse Button";
 		case VirtualKeys::RIGHT_MOUSE_BUTTON: return "Right Mouse Button";
 		case VirtualKeys::MIDDLE_MOUSE_BUTTON: return "Middle Mouse Button";
-
-		default: return std::format("Key Code {}", (uint16_t)key);
 		}
 
-		return "";
+		return std::format("Key Code {}", (uint16_t)key);
 	}
 }

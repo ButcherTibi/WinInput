@@ -1,0 +1,10 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "f:\\mywork\\wininput\\utf8 strings\\module.ixx",
+        "ProvidedModule": "UTF8_Strings:Module",
+        "Includes": [],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

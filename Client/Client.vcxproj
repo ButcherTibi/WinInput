@@ -114,7 +114,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>InputLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,14 +134,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Examples\GettingStarted.ixx" />
-    <ClCompile Include="Examples\KeyExample.ixx" />
+    <ClCompile Include="Examples\WinInputExamples\Example 01 GettingStarted.ixx" />
+    <ClCompile Include="Examples\WinInputExamples\Example 02 Keyboard.ixx" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Examples\MouseExample.ixx" />
+    <ClCompile Include="Examples\WinInputExamples\Example 03 Mouse.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InputLibrary\InputLibrary.vcxproj">
       <Project>{6be428b3-81f4-4675-bfef-7cfd8cd10b8a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\UTF8 Strings\UTF8 Strings.vcxproj">
+      <Project>{827e0e98-dad9-4cab-98b4-8c4065701ecf}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,0 +1,14 @@
+﻿  Scanning sources for module dependencies...
+  Module.ixx
+  Compiling...
+  Module.ixx
+F:\MyWork\WinInput\UTF8 Strings\Module.ixx(991,28): fatal  error C1001: Internal compiler error.
+  (compiler file 'msc1.cpp', line 1635)
+   To work around this problem, try simplifying or changing the program near the locations listed above.
+  If possible please provide a repro here: https://developercommunity.visualstudio.com
+  Please choose the Technical Support command on the Visual C++
+   Help menu, or open the Technical Support help file for more information
+F:\MyWork\WinInput\UTF8 Strings\Module.ixx(991,28): message : IFC import detected. If possible, please follow instructions here for more information about providing a repro for modules: https://aka.ms/report-cpp-modules-problem
+  INTERNAL COMPILER ERROR in 'F:\Programs\Visual Studio\VC\Tools\MSVC\14.50.35717\bin\HostX64\x64\CL.exe'
+      Please choose the Technical Support command on the Visual C++
+      Help menu, or open the Technical Support help file for more information

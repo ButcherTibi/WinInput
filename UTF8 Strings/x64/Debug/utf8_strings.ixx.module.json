@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\Debug\\UTF8_Strings.ixx.obj",
+            "outputs": [
+                "F:\\MyWork\\WinInput\\x64\\Debug\\UTF8 Strings.pdb",
+                "x64\\Debug\\",
+                "F:\\MyWork\\WinInput\\UTF8 Strings\\x64\\Debug\\UTF8_Strings.ixx.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "UTF8_Strings",
+                    "source-path": "f:\\mywork\\wininput\\utf8 strings\\utf8_strings.ixx",
+                    "is-interface": true
+                }
+            ],
+            "requires": [
+                {
+                    "logical-name": "std"
+                },
+                {
+                    "logical-name": "std.compat"
+                }
+            ]
+        }
+    ]
+}

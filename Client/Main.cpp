@@ -1,14 +1,16 @@
 import std;
 
-// Library
-import GettingStarted;
-import MouseExample;
-import KeyExample;
+import WinInputExamples_GettingStarted;
+import WinInputExamples_Keyboard;
+import WinInputExamples_Mouse;
+
+import UTF8_Strings;
 
 int main()
 {
-	//gettingStarted();
-	//mouseExample();
-	keyExample();
+	f();
+
+	keyboardExample();
+
 	return 0;
 }

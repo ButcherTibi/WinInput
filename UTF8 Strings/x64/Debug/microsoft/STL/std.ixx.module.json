@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\Debug\\microsoft/STL\\std.ixx.obj",
+            "outputs": [
+                "F:\\MyWork\\WinInput\\x64\\Debug\\UTF8 Strings.pdb",
+                "x64\\Debug\\microsoft/STL\\",
+                "F:\\MyWork\\WinInput\\UTF8 Strings\\x64\\Debug\\microsoft\\STL\\std.ixx.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "std",
+                    "source-path": "f:\\programs\\visual studio\\vc\\tools\\msvc\\14.50.35717\\modules\\std.ixx",
+                    "is-interface": true
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

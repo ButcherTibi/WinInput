@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\Debug\\UTF8_Strings.obj",
+            "outputs": [
+                "x64\\Debug\\UTF8_Strings.ixx.ifc.dt.module.json",
+                "x64\\Debug\\UTF8_Strings.ixx.ifc.dt.d.json",
+                "x64\\Debug\\UTF8_Strings.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "UTF8_Strings",
+                    "source-path": "f:\\mywork\\wininput\\utf8 strings\\utf8_strings.ixx",
+                    "is-interface": true
+                }
+            ],
+            "requires": [
+                {
+                    "logical-name": "std"
+                },
+                {
+                    "logical-name": "std.compat"
+                }
+            ]
+        }
+    ]
+}
